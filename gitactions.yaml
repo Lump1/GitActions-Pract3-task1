@@ -1,0 +1,53 @@
+name: Car Assembly Line
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      
+      - name: Create build directory
+        run: mkdir build
+      
+      - name: Create and write to assembly file
+        run: |
+          cd build
+          echo "Кузов" >> car_parts.txt
+          echo "Двигун" >> car_parts.txt
+          echo "Колеса" >> car_parts.txt
+          echo "Фари" >> car_parts.txt
+          echo "Сидіння" >> car_parts.txt
+      
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: car-assembly
+          path: build
+
+  test:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      
+      - name: Download build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: car-assembly
+          path: build
+      
+      - name: Verify car parts in the file
+        run: |
+          cd build
+          grep "Кузов" car_parts.txt
+          grep "Двигун" car_parts.txt
+          grep "Колеса" car_parts.txt
+          grep "Фари" car_parts.txt
+          grep "Сидіння" car_parts.txt
